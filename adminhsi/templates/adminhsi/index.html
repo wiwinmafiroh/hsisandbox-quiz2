@@ -1,0 +1,67 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Halaman Admin</title>
+    <link rel="stylesheet" href={% static 'adminhsi/css/style.css' %} />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"/>
+  </head>
+  <body>
+    <header id="header" class="header">
+      <div class="left">
+        <h1>HALAMAN ADMIN</h1>
+        <p>Wiwin Mafiroh</p>
+      </div>
+      <div class="right">
+        <img src="https://idn-static-assets.s3-ap-southeast-1.amazonaws.com/school/10070.png" alt="" width="60"/>
+      </div>
+    </header>
+    <main id="main" class="main">
+      <div class="card">
+        <div class="title">
+          <h4>Daftar Pertanyaan, Pilihan Ganda, dan Kunci Jawaban Evaluasi Harian HSI</h4>
+        </div>
+        <div class="table">
+          <table border="1" cellpadding="4" cellspacing="0">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th width="50%">Soal</th>
+                <th width="25%">Pilihan Ganda</th>
+                <th width="25%">Kunci Jawaban</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for soal in bank_soal %}
+              <tr>
+                <td align="center">{{ forloop.counter }}.</td>
+                <td>{{ soal.Soal }} ...</td>
+                <td>
+                  {% for key, value in soal.Pilihan_Ganda.items %} {{ key }}.
+                  {{value}}<br />
+                  {% endfor %}
+                </td>
+                <td>
+                  {% for key, value in soal.Kunci_Jawaban.items %} {{ key }}.
+                  {{value}}<br />
+                  {% endfor %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3">Jumlah Soal</td>
+                <td>{{ jml_soal }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

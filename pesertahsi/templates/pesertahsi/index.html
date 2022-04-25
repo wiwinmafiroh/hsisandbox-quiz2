@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Halaman Peserta</title>
+    <link rel="stylesheet" href={% static 'pesertahsi/css/style.css' %} />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet"/>
+  </head>
+  <body>
+    <header id="header" class="header">
+      <div class="left">
+        <h1>HALAMAN PESERTA</h1>
+        <p>wiwin mafiroh</p>
+      </div>
+      <div class="right">
+        <img src="https://idn-static-assets.s3-ap-southeast-1.amazonaws.com/school/10070.png" alt="Logo HSI" width="60"/>
+      </div>
+    </header>
+    <main>
+      <div class="card-judul-kiri">
+        <h5>Program Reguler</h5>
+        <hr />
+        <h4>SI000.EH001</h4>
+        <hr />
+        <p>Jumlah Soal: 2</p>
+      </div>
+      <div class="card-judul-kanan">
+        <h3>Informasi Evaluasi Harian</h3>
+        <p>
+          Evaluasi terdiri dari <b>2 Pertanyaan</b>. Setiap jawaban yang
+          <span class="biru">Benar</span>, bernilai <span class="biru">2</span>.
+          Sedangkan jawaban yang <span class="merah">Salah</span>, bernilai
+          <span class="merah">1</span>. Klik <b>Tombol Kirim Jawaban</b>, jika sudah
+          yakin dengan jawaban anda. <b>Hasil Evaluasi</b> akan ditampilkan di
+          halaman ini.
+        </p>
+      </div>
+      <div class="clear"></div>
+      <div class="card-soal">
+        <h3>Soal</h3>
+          {% for soal in bank_soal %}
+          <div class="soal">
+            <p>{{ forloop.counter }}. {{ soal.Soal }} ...</p>
+            {% with angka=forloop.counter %}
+            {% for key, value in soal.Pilihan_Ganda.items %}
+            <input type="radio" name="n{{ angka }}" id="key{{ forloop.counter }}" value="{{ key }}. {{ value }}"/>
+            <label for="key{{ forloop.counter }}">{{ key }}. {{ value }}</label>
+            <br />
+            {% endfor %}
+            {% endwith %}
+          </div>
+          {% endfor %}
+          <button type="button" onclick="tampilJawaban()" id="buttonKirim">Kirim Jawaban</button>
+      </div>
+      <div class="card-hasil">
+        <h3>Hasil Evaluasi</h3>
+        <div class="table">
+          <table border="1" cellpadding="4" cellspacing="0">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th width="40%">Pertanyaan</th>
+                <th width="20%">Jawaban Anda</th>
+                <th width="20%">Jawaban Benar</th>
+                <th width="5%">Hasil</th>
+                <th width="5%">Nilai</th>
+              </tr>
+            </thead>
+            <tbody id="tabelData">
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5" align="center">
+                  <b>Total Nilai</b>
+                </td>
+                <td id="nilaiAkhir" align="center">0</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <p class="paragrafAkhir" style="margin-top: 1.5rem"></p>
+      </div>
+    </main>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      function tampilJawaban() {
+        var tabelData = document.getElementById("tabelData");
+        var nilai = document.getElementById("nilaiAkhir");
+        var input = document.getElementsByTagName("input");
+        var button = document.getElementById("buttonKirim");
+        var paragrafAkhir = document.getElementsByClassName("paragrafAkhir");
+        var nilaiBenar = 2;
+        var nilaiSalah = 1;
+        var nilaiKosong = 0;
+        var nilaiAkhir = 0;
+
+        if(confirm ("Apakah anda yakin dengan jawaban anda?") == true) {
+          {% for soal in bank_soal %}
+          var soal = "{{ soal.Soal }}";
+          var jawaban = ($("input[name='n{{ forloop.counter }}']:checked").val());
+
+            tabelData.innerHTML +=
+            "<tr>" + 
+              "<td align='center'>" + "{{ forloop.counter }}" + "." + "</td>" +
+              "<td>" + soal + " ... " + "</td>" +
+              (jawaban == null ? "<td>Tidak Menjawab</td>" : "<td>" + jawaban + "</td>") +
+              {% for key, value in soal.Kunci_Jawaban.items %}
+              "<td>" + "{{ key }}. {{ value }}" + "</td>" +
+              (jawaban == null ? "<td style='font-weight: bold'>Tidak Menjawab</td>" : 
+              (jawaban == "{{ key }}. {{ value }}" ? "<td style='color: #518bd5; font-weight: bold'>" + "Benar" + "</td>" : 
+              "<td style='color: red; font-weight: bold'>" + "Salah" + "</td>")) +
+              (jawaban == null ? "<td style='text-align: center'>" + nilaiKosong + "</td>" : 
+              (jawaban == "{{ key }}. {{ value }}" ? "<td style='text-align: center'>" + nilaiBenar + "</td>" : 
+              "<td style='text-align: center'>" + nilaiSalah + "</td>")) +
+              {% endfor %}
+            "</tr>";
+
+            {% for key, value in soal.Kunci_Jawaban.items %}
+              if (jawaban == "{{ key }}. {{ value }}") {
+                nilaiAkhir += nilaiBenar;
+              } else if (jawaban == null) {
+                nilaiAkhir += nilaiKosong;
+              } else {
+                nilaiAkhir += nilaiSalah;
+              }
+              nilai.innerHTML = nilaiAkhir;
+            {% endfor %}
+          {% endfor %}
+
+          for (i = 0; i < input.length; i++) {
+            input[i].disabled = true;
+          }
+          
+          button.disabled = true;
+          button.style.backgroundColor = '#8a94b4';
+          
+          paragrafAkhir[0].innerHTML = 
+          "------------------------ Evaluasi Harian Selesai ------------------------- <br> Nilai Akhir Anda: " + "<b>" + nilaiAkhir + "/4" + "</b>" + "<br>" + "------------------ Tetap Semangat, dan Terus Belajar!!! ------------------";
+        } else {
+          return false;
+        }
+      }
+    </script>
+  </body>
+</html>
